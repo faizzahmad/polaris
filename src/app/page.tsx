@@ -1,7 +1,7 @@
 const Page = () => {
   return ( 
     <div>
-      My name is faiz ahmad
+      fa
     </div>
   );
 }
