@@ -1,14 +1,6 @@
-import { createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware } from '@clerk/nextjs/server';
 
-const isPulicRoute = createRouteMatcher([
-  "/api/inngest(.*)",
-])
-
-// export default clerkMiddleware(async (auth,req) => {
-//   if(!isPulicRoute(req)){
-//     await auth.protect();
-//   }
-// });
+export default clerkMiddleware();
 
 export const config = {
   matcher: [
