@@ -123,7 +123,7 @@ const Navbar = (
                         project.updatedAt,
                         {addSuffix : true}
                        )
-                       ) : "Loading.."}
+                       ) : "Loading..."}
                     </TooltipContent>
                 </Tooltip>
                       </TooltipProvider>

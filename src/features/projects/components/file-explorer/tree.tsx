@@ -10,6 +10,9 @@ import { LoadingRow } from "./loading-row";
 import { CreateInput } from "./create-input";
 import { Doc, Id } from "../../../../../convex/_generated/dataModel";
 import { useState } from "react";
+import { TreeItemWrapper } from "./tree-item-wrapper";
+import { RenameInput } from "./rename-input";
+
 
 export const Tree = ({
     item,
@@ -25,7 +28,7 @@ export const Tree = ({
     const [creating, setCreating] = useState<"file" | "folder" | null>(null);
 
     const renameFile = useRenameFile();
-    const delteFile = useDeleteFile();
+    const deleteFile = useDeleteFile();
     const createFile = useCreateFile();
     const createFolder = useCreateFolder();
     const folderContents = useFolderContents({
@@ -33,17 +36,182 @@ export const Tree = ({
         parentId: item._id,
         enabled: item.type === "folder" && isOpen,
     });
+     
+    const handelRename = (newName: string) => {
+        setIsRenaming(false);
+        if(newName === item.name){
+            return;
+        }
+        renameFile({ id: item._id, newName });
+    };
+    
+    const handelCreate = (name: string) => {
+         setCreating(null);
+         if(creating === "file"){
+            createFile({ projectId, name, content: "", parentId: item._id })
+         } else {
+            createFolder({ projectId, name, parentId: item._id })
+         }
+    }
+
+    const startCreating = (type: "file" | "folder") => {
+        setIsOpen(true);
+        setCreating(type);
+    }
 
     if(item.type === "file"){
+        const fileName = item.name;
+        if(isRenaming){
+            return (
+                <RenameInput
+                    type="file"
+                    defaultValue={fileName}
+                    level={level}
+                    onSubmit={handelRename}
+                    onCancel={() => setIsRenaming(false)}
+                />
+            );
+        }
         return(
-            <div>
-                I am a file!
-            </div>
+            <TreeItemWrapper
+            item={item}
+            level={level}
+            isActive={false}
+            onClick={() => {}}
+            onDoubleClick={() => {}}
+            onRename={() => setIsRenaming(true)}
+            onDelete={() => {
+              deleteFile({ id: item._id })
+            }}
+          >
+            <FileIcon fileName={fileName} autoAssign className="size-4" />
+            <span className="truncate text-sm">{fileName}</span>
+          </TreeItemWrapper>
         )
     }
-    return(
-        <div>
-            I am a folder!
-        </div>
+
+    const folderName = item.name;
+    const folderRender = (
+        <>
+        <div className="flex items-center gap-0.5">
+        <ChevronRightIcon
+          className={cn(
+            "size-4 shrink-0 text-muted-foreground",
+            isOpen && "rotate-90"
+          )}
+        />
+        <FolderIcon folderName={folderName} className="size-4" />
+      </div>
+      <span className="truncate text-sm">{folderName}</span>
+        </>
     )
-}
+   if(creating){
+     return(
+        <>
+        <button
+        onClick={() => setIsOpen((value) => !value)}
+        className="group flex items-center gap-1 h-5.5 hover:bg-accent/30 cursor-pointer w-full"
+        style={{ paddingLeft: getItemPadding(level,false)}}
+        >
+            {folderRender}
+        </button>
+        {
+            isOpen && (
+                <>
+                {folderContents === undefined && <LoadingRow level={level+1}/>}
+                <CreateInput
+                  type={creating}
+                  level={level+1}
+                  onSubmit={handelCreate}
+                  onCancel={() => setCreating(null)}
+                />
+                {
+                    folderContents?.map((subItem) => (
+                        <Tree
+                        key={`${subItem._id}`}
+                        item={subItem}
+                        level={level+1}
+                        projectId={projectId}
+                        />
+                    ))
+                }
+                </>
+            )
+        }
+        </>
+     )
+   }
+
+   if(isRenaming){
+    return(
+       <>
+       <RenameInput
+       type="folder"
+       defaultValue={folderName}
+       isOpen={isOpen}
+       level={level}
+       onSubmit={handelRename}
+       onCancel={() => setIsRenaming(false)}
+       />
+       {
+           isOpen && (
+               <>
+               {folderContents === undefined && <LoadingRow level={level+1}/>}
+               {/* <CreateInput
+                 type={creating}
+                 level={level+1}
+                 onSubmit={handelCreate}
+                 onCancel={() => setCreating(null)}
+               /> */}
+               {
+                   folderContents?.map((subItem) => (
+                       <Tree
+                       key={`${subItem._id}`}
+                       item={subItem}
+                       level={level+1}
+                       projectId={projectId}
+                       />
+                   ))
+               }
+               </>
+           )
+       }
+       </>
+    )
+  }
+
+    return(
+       <>
+        <TreeItemWrapper
+        item={item}
+        level={level}
+        isActive={false}
+        onClick={() => setIsOpen((value) => !value)}
+        onRename={() => setIsRenaming(true)}
+        onDelete={() => {
+            deleteFile({ id: item._id })
+        }}
+        onCreateFile={() => startCreating("file")}
+        onCreateFolder={() => startCreating("folder")}
+        >
+            {folderRender}
+        </TreeItemWrapper>
+        {
+            isOpen && (
+                <>
+                {folderContents === undefined && <LoadingRow level={level + 1}/>}
+                {folderContents?.map((subItem) => (
+                    <Tree
+                    key={`${subItem._id}`}
+                    item={subItem}
+                    level={level + 1}
+                    projectId={projectId}
+                    />
+                ))}
+                </>
+            )
+        }
+       
+       </>
+    );
+};
