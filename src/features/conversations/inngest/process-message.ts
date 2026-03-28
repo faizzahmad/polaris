@@ -9,6 +9,11 @@ import { createAgent, anthropic, createNetwork } from '@inngest/agent-kit';
 import { createReadFilesTool } from "./tools/read-files";
 import { createListFilesTool } from "./tools/list-files";
 import { createUpdateFileTool } from "./tools/update-file";
+import { createCreateFilesTool } from "./tools/create-files";
+import { createCreateFolderTool } from "./tools/create-folder";
+import { createRenameFileTool } from "./tools/rename-file";
+import { createDeleteFilesTool } from "./tools/delete-files";
+import { createScrapeUrlsTool } from "./tools/scrape-urls";
 interface MessageEvent {
   messageId: Id<"messages">;
   conversationId: Id<"conversations">;
@@ -150,7 +155,11 @@ export const processMessage = inngest.createFunction(
         createListFilesTool({ internalKey, projectId }),
         createReadFilesTool({ internalKey }),
         createUpdateFileTool({ internalKey }),
-        
+        createCreateFilesTool({ projectId, internalKey }),
+        createCreateFolderTool({ projectId, internalKey }),
+        createRenameFileTool({ internalKey }),
+        createDeleteFilesTool({ internalKey }),
+        createScrapeUrlsTool(),
        ],
     });
 
