@@ -2,6 +2,19 @@ import { useMutation, useQuery } from "convex/react"
 import { Id } from "../../../../convex/_generated/dataModel"
 import { api } from "../../../../convex/_generated/api"
 
+const sortFiles = <T extends { type: "file" | "folder"; name: string }>(
+    files: T[]
+  ): T[] => {
+    return [...files].sort((a, b) => {
+      if (a.type === "folder" && b.type === "file") return -1;
+      if (a.type === "file" && b.type === "folder") return 1;
+      return a.name.localeCompare(b.name);
+    });
+  };
+export const useFiles = (projectId: Id<"projects"> | null) => {
+    return useQuery(api.files.getFiles, projectId ? { projectId } : "skip");
+  };
+
 export const useFile = (fileId: Id<"files"> | null) => {
     return useQuery(api.files.getFile, fileId ? { id: fileId } : "skip");
   };
