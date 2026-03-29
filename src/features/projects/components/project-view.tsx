@@ -7,9 +7,10 @@ import {FaGithub} from "react-icons/fa";
 import { Poppins } from "next/font/google";
 import { ProjectsList } from "./projects-list";
 import { useCreateprojects } from "../hooks/use-projects";
-import {adjectives,animals,colors,uniqueNamesGenerator} from "unique-names-generator"
 import { useEffect, useState } from "react";
 import { ProjectsCommandDialog } from "./projects-command-dialog";
+import { ImportGithubDialog } from "./import-github-dialog";
+import { NewProjectDialog } from "./new-project-dialog";
 const font = Poppins({
     subsets : ["latin"],
     weight : ["400","500","600","700"]
@@ -17,13 +18,22 @@ const font = Poppins({
 export const ProjectView = () => {
     const createProject = useCreateprojects();
        const [commandDialogOpen,setCommandDialogOpen] =  useState(false);
+       const [importDialogOpen, setImportDialogOpen] = useState(false);
+       const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
     useEffect(() => {
         const handelKeyDown = (e : KeyboardEvent) => {
             if(e.metaKey || e.ctrlKey) {
                 if(e.key === "k" ) {
                     e.preventDefault();
                     setCommandDialogOpen(true);
-                }
+                } if (e.key === "i") {
+                    e.preventDefault();
+                    setImportDialogOpen(true);
+                  }
+                  if (e.key === "j") {
+                    e.preventDefault();
+                    setNewProjectDialogOpen(true);
+                  }
             }
         }
         window.addEventListener("keydown",handelKeyDown);
@@ -36,6 +46,14 @@ export const ProjectView = () => {
         open={commandDialogOpen}
         onOpenChange={setCommandDialogOpen}
         />
+        <ImportGithubDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+      />
+      <NewProjectDialog
+        open={newProjectDialogOpen}
+        onOpenChange={setNewProjectDialogOpen}
+      />
         <div className="min-h-screen bg-sidebar flex flex-col items-center justify-center p-6 md:p-16">
            <div className="w-full max-w-sm mx-auto flex flex-col gap-4 items-center">
                 <div className="flex justify-between gap-4 w-full items-center">
@@ -48,16 +66,7 @@ export const ProjectView = () => {
                     <div className="grid grid-cols-2 gap-2">
                         <Button 
                         variant={'outline'}
-                        onClick={() => {
-                            const projectName = uniqueNamesGenerator({
-                                dictionaries : [adjectives,colors,animals],
-                                separator : "-",
-                                length : 3,
-                            });
-                            createProject({
-                                name : projectName
-                            });
-                        }}
+                        onClick={() => setNewProjectDialogOpen(true)}
                         className="h-full items-start justify-start p-4 bg-background border flex flex-col gap-6 rounded-none"
                         >
                         <div className="flex items-center justify-between w-full">
@@ -75,7 +84,7 @@ export const ProjectView = () => {
 
                         <Button 
                         variant={'outline'}
-                        onClick={() => {}}
+                        onClick={() => setImportDialogOpen(true)}
                         className="h-full items-start justify-start p-4 bg-background border flex flex-col gap-6 rounded-none"
                         >
                         <div className="flex items-center justify-between w-full">

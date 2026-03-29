@@ -208,11 +208,13 @@ export const createFolder = mutation({
       (file) => file.name === args.name && file.type === "folder"
     );
 
-    if (existing) throw new Error("Folder already exists");
+    if (existing) {
+      return existing._id;
+    }
 
     const now = Date.now();
 
-    await ctx.db.insert("files", {
+    const folderId = await ctx.db.insert("files", {
       projectId: args.projectId,
       name: args.name,
       type: "folder",
@@ -223,6 +225,8 @@ export const createFolder = mutation({
     await ctx.db.patch("projects", args.projectId, {
       updatedAt: now,
     });
+
+    return folderId;
   },
 });
 
