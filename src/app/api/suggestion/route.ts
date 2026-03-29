@@ -2,7 +2,7 @@ import { generateText, Output } from "ai";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { google } from "@ai-sdk/google";
+import { anthropic } from "@ai-sdk/anthropic";
 
 const suggestionSchema = z.object({
     suggestion: z
@@ -82,7 +82,7 @@ const suggestionSchema = z.object({
         .replace("{lineNumber}", lineNumber.toString());
   
       const { output } = await generateText({
-        model: google("gemini-2.5-flash"),
+        model: anthropic("claude-haiku-4-5-20251001"),
         output: Output.object({ schema: suggestionSchema }),
         prompt,
       });
